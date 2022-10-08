@@ -1,0 +1,122 @@
+#include <Smoothed.h>
+
+#define MotorR1 7
+#define MotorR2 6
+#define MotorRE 9  // Motor pinlerini tanımlıyoruz.
+#define MotorL1 5
+#define MotorL2 4
+#define MotorLE 3
+
+
+int led = 13;
+
+Smoothed <float> mySensor;
+Smoothed <float> mySensor2;
+
+#define SENSOR_PIN A1
+#define SENSOR_PIN2 A0
+
+
+
+float ayarlananpoz;
+float motorpozisyon;
+
+
+void setup() {
+  mySensor.begin(SMOOTHED_AVERAGE, 15);
+  mySensor2.begin(SMOOTHED_AVERAGE, 15);
+
+  pinMode(MotorR1, OUTPUT);
+  pinMode(MotorR2, OUTPUT);
+  pinMode(MotorRE, OUTPUT);
+  pinMode(led, OUTPUT);
+  Serial.begin(9600);
+
+  mySensor.clear();
+
+}
+
+
+
+
+void loop() {
+
+  float ayarlananpoz = analogRead(SENSOR_PIN);
+  mySensor.add(ayarlananpoz);
+  float smoothedSensorValueExp1 = mySensor.get();
+  
+  
+// -------------------------------
+
+
+  float motorpozisyon = analogRead(SENSOR_PIN2);
+  mySensor2.add(motorpozisyon);
+  float smoothedSensorValueExp2 = mySensor2.get();
+
+
+Serial.print(ayarlananpoz); Serial.print("\t"); Serial.print(smoothedSensorValueExp1); Serial.print("\t"); Serial.println(smoothedSensorValueExp2);
+
+ 
+
+  if (ayarlananpoz <  motorpozisyon ) {
+
+
+
+    digitalWrite(MotorR1, HIGH); // Sağ motorun ileri hareketi aktif
+    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
+    analogWrite(MotorRE, 50); // Sağ motorun hızı 150
+
+    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi aktif
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
+    analogWrite(MotorLE, 50); // Sol motorun hızı 150
+    digitalWrite(led, HIGH);
+
+  }
+
+  else {
+
+    digitalWrite(MotorR1, HIGH); // Sağ motorun ileri hareketi aktif
+    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
+    analogWrite(MotorRE, 0); // Sağ motorun hızı 0 (Motor duruyor)
+
+    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi aktif
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
+    analogWrite(MotorLE, 0); // Sol motorun hızı 150
+    digitalWrite(led, LOW);
+
+  }
+
+  if (ayarlananpoz > motorpozisyon ) {
+
+
+    digitalWrite(MotorR1, LOW); // Sağ motorun ileri hareketi pasif
+    digitalWrite(MotorR2, HIGH); // Sağ motorun geri hareketi aktif
+    analogWrite(MotorRE, 50); // Sağ motorun hızı 150
+
+    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi pasif
+    digitalWrite(MotorL2, HIGH); // Sol motorun geri hareketi aktif
+    analogWrite(MotorLE, 50); // Sol motorun hızı 150
+    digitalWrite(led, HIGH);
+
+  }
+
+  else if (ayarlananpoz == motorpozisyon) {
+
+
+    digitalWrite(MotorR1, HIGH); // Sağ motorun ileri hareketi aktif
+    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
+    analogWrite(MotorRE, 0); // Sağ motorun hızı 0 (Motor duruyor)
+
+    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi aktif
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
+    analogWrite(MotorLE, 0); // Sol motorun hızı 150
+    digitalWrite(led, LOW);
+
+  }
+
+  float lastValueStoredAvg = mySensor.getLast();
+    float lastValueStoredExp = mySensor2.getLast();
+
+    
+
+}
